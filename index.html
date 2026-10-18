@@ -64,7 +64,9 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background
 .vtitle span{font-size:12px;color:var(--muted);letter-spacing:.06em}
 
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
-nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+nav.tabs button{position:relative}
+nav.tabs .badge{position:absolute;top:6px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--bad)}
 nav.tabs button{background:none;border:0;padding:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted)}
 nav.tabs svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav.tabs button[aria-current="page"]{color:var(--accent)}
@@ -167,6 +169,49 @@ textarea.text{min-height:110px;resize:vertical;font-size:13px;line-height:1.5}
 .vrow .sub{font-size:12px;color:var(--muted)}
 .form3{display:grid;grid-template-columns:1fr;gap:8px}
 @media (min-width:420px){.form3{grid-template-columns:2fr 1fr 1fr}}
+/* karte */
+.kitem.over{border-color:var(--bad);border-width:2px}
+.kitem.over .kh{background:color-mix(in srgb, var(--bad) 18%, var(--surface2))}
+.kitem.over .kh b{color:var(--bad)}
+.kln{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.kln .klab{width:2.4em;flex:none}
+.kln .kdue{font-size:22px}
+.kln small{font-size:12px;color:var(--muted)}
+.kln small.over{color:var(--bad);font-weight:700} .kln small.soon{color:var(--warn)}
+.knote{font-weight:700;font-size:17px;margin-bottom:2px}
+.knote.over{color:var(--bad)} .knote.soon{color:var(--warn)}
+.khero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.khero .bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;background:var(--surface2);font-size:13px}
+.khero .bar.over{background:var(--bad);color:#fff}
+.khero .bar.soon{background:var(--warn);color:#1d1406}
+.khero dl{margin:0;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:2px;font-size:13px;color:var(--muted)}
+.khero dd{margin:0;color:var(--fg);font-family:var(--f-num);font-size:17px;font-weight:600}
+.khero dd i{font-style:normal;font-family:var(--f-body);font-size:12px;font-weight:400;color:var(--muted);margin-left:6px}
+.kitem{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.kitem .kh{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--surface2)}
+.kitem .kh b{font-size:16px}
+.kitem .kh b.over{color:var(--bad)}
+.lnk{background:none;border:0;color:var(--muted);font-size:13px;padding:4px 0}
+.kbody{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 12px}
+.klab{font-size:12px;color:var(--muted)}
+.kdue{font-family:var(--f-num);font-weight:700;font-size:26px;line-height:1.15}
+.kdue.over{color:var(--bad)} .kdue.soon{color:var(--warn)}
+.kdue.none{color:var(--muted);font-family:var(--f-body);font-size:15px;font-weight:500}
+.kdue small{font-family:var(--f-body);font-size:12px;font-weight:500;margin-left:6px}
+.klast{font-size:12px;color:var(--muted);margin-top:2px}
+.klast .num{font-size:15px;color:var(--fg)}
+.kbtn{min-width:76px;padding:12px 14px}
+.kform{border-top:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:8px}
+.kform input[type=date]{width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);font-family:var(--f-num);font-size:17px}
+.khist{list-style:none;margin:0;padding:0 12px 12px;display:flex;flex-direction:column;gap:6px}
+.khist li{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;padding:8px 10px;background:var(--surface2);border-radius:10px}
+.khist .btn{padding:6px 10px;font-size:12px}
+.kcfg{display:grid;grid-template-columns:1fr 62px 80px;gap:6px;align-items:center;font-size:14px}
+.kcfg label{display:flex;align-items:center;gap:8px;min-width:0}
+.kcfg input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
+.kcfg .text{padding:7px 8px;text-align:right}
+.kcfg.head{font-size:12px;color:var(--muted)}
+.kcfg.head span:not(:first-child){text-align:center}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:13px;z-index:20;transition:opacity .2s}
 .toast[hidden]{display:none!important}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
@@ -188,6 +233,7 @@ textarea.text{min-height:110px;resize:vertical;font-size:13px;line-height:1.5}
   <button data-act="go" data-v="trend"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M5 15l4-5 4 3 6-7"/></svg>推移</button>
   <button data-act="go" data-v="input" class="add"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v10M7 12h10"/></svg>入力</button>
   <button data-act="go" data-v="analysis"><svg viewBox="0 0 24 24"><path d="M5 20V11M10 20V5M15 20v-7M20 20V9"/></svg>分析</button>
+  <button data-act="go" data-v="karte"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 11l2 2 4-4M8.5 17h7"/></svg>カルテ<span class="badge" id="kbadge" hidden></span></button>
   <button data-act="go" data-v="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>設定</button>
 </div></nav>
 <div class="toast" id="toast" hidden role="status"></div>
@@ -214,11 +260,11 @@ const SERIES = [
   {k:'money', n:'給油金額',   g:'yen', c:'--c-money'}
 ];
 const GROUP_UNIT = {kmL:'km/L', yenL:'円/L', km:'km', L:'L', yen:'円'};
-const VIEW_LABEL = {history:'履歴', trend:'推移', input:'入力', analysis:'分析', settings:'設定'};
+const VIEW_LABEL = {history:'履歴', trend:'推移', input:'入力', analysis:'分析', karte:'車カルテ', settings:'設定'};
 
 /* ---------- state ---------- */
 let S;
-const ui = {view:'history', period:'all', series:['seg','price'], target:'all', agg:'month', metric:'econ', armed:null, showBackup:false, restoreText:'', vedit:null, fallback:null};
+const ui = {view:'history', period:'all', series:['seg','price'], target:'all', agg:'month', metric:'econ', armed:null, showBackup:false, restoreText:'', vedit:null, fallback:null, mform:null, mopen:null};
 let F = null; let chart = null;
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -237,7 +283,7 @@ function sample(){
     ['2026-09-22',43941,29.40,151,true,4439],['2026-10-18',44210,26.51,151,true,4003]
   ];
   const records = rows.map(r => ({id:uid(), vid:'v1', date:r[0], odo:r[1], liters:r[2], price:r[5] || Math.round(r[2]*r[3]), full:r[4]!==false, exclude:false, memo:'', station:''}));
-  return {vehicles:[{id:'v1', name:'ルーミー', fuel:'レギュラー', tank:36}], records, activeVid:'v1', prompt:null, lastBackup:null, sample:true};
+  return {vehicles:[{id:'v1', name:'ルーミー', fuel:'レギュラー', tank:36}], records, activeVid:'v1', prompt:null, lastBackup:null, sample:true, maint:[], mcfg:null};
 }
 const DB = {
   db:null,
@@ -245,9 +291,9 @@ const DB = {
   get(k){ return new Promise(res=>{ try{ const q=this.db.transaction('kv').objectStore('kv').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(null); }catch(e){ res(null); } }); },
   put(k,v){ try{ this.db.transaction('kv','readwrite').objectStore('kv').put(v,k); }catch(e){} }
 };
-function initial(){ return {vehicles:[{id:uid(), name:'ルーミー', fuel:'レギュラー', tank:36}], records:[], activeVid:null, prompt:null, lastBackup:null, sample:false}; }
+function initial(){ return {vehicles:[{id:uid(), name:'ルーミー', fuel:'レギュラー', tank:36}], records:[], activeVid:null, prompt:null, lastBackup:null, sample:false, maint:[], mcfg:null}; }
 async function load(){
-  try{ await DB.open(); const o = await DB.get('state'); if(o && Array.isArray(o.vehicles) && Array.isArray(o.records)){ S = o; return; } }catch(e){}
+  try{ await DB.open(); const o = await DB.get('state'); if(o && Array.isArray(o.vehicles) && Array.isArray(o.records)){ S = o; if(!Array.isArray(S.maint)) S.maint=[]; return; } }catch(e){}
   S = initial(); S.activeVid = S.vehicles[0].id; save();
 }
 function save(){ if(DB.db) DB.put('state', JSON.parse(JSON.stringify(S))); }
@@ -292,8 +338,9 @@ function render(){
   $('#vview').textContent = VIEW_LABEL[ui.view] + (S.vehicles.length>1 ? '　' + (S.vehicles.indexOf(v)+1) + ' / ' + S.vehicles.length : '');
   document.querySelectorAll('[data-act=vprev],[data-act=vnext]').forEach(b=>b.disabled = S.vehicles.length<2);
   document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-current', b.dataset.v===ui.view ? 'page':'false'));
+  $('#kbadge').hidden = !(v && kalerts(v.id).some(x=>x.st==='over'));
   if(chart){ chart.destroy(); chart=null; }
-  const fn = {history:renderHistory, trend:renderTrend, input:renderInput, analysis:renderAnalysis, settings:renderSettings}[ui.view];
+  const fn = {history:renderHistory, trend:renderTrend, input:renderInput, analysis:renderAnalysis, karte:renderKarte, settings:renderSettings}[ui.view];
   $('#view').innerHTML = fn();
   if(ui.view==='trend') drawTrend();
   if(ui.view==='analysis') drawAnalysis();
@@ -306,6 +353,8 @@ function banners(){
     const days = S.lastBackup ? (Date.now()-S.lastBackup)/864e5 : Infinity;
     if(days>30) h += `<div class="banner"><span>${S.lastBackup ? '前回のバックアップから30日以上経っています。' : 'まだバックアップを取っていません。'}</span><button class="btn" data-act="go" data-v="settings">バックアップ</button></div>`;
   }
+  const v = veh(); const al = v ? kalerts(v.id) : [];
+  if(al.length) h += `<div class="banner"><span>交換時期の項目があります：${al.map(x=>esc(x.it.n)+(x.st==='over'?'（超過）':'')).join('、')}</span><button class="btn" data-act="go" data-v="karte">カルテ</button></div>`;
   return h;
 }
 
@@ -572,6 +621,172 @@ function importJSON(){
   render(); toast(got.length ? got.join('・')+'を取り込みました' : '取り込める項目がありませんでした');
 }
 
+/* ---------- 車カルテ ---------- */
+// m=交換目安（か月）, km=交換目安（km）。設定で変更・非表示にできる
+const MITEMS = [
+  {k:'shaken',  n:'車検',               m:24, km:null,   on:true, full:true},
+  {k:'tenken',  n:'12か月点検',          m:12, km:null,   on:true},
+  {k:'oil',     n:'エンジンオイル',       m:6,  km:5000,   on:true},
+  {k:'element', n:'オイルエレメント',     m:null, km:null, on:true},
+  {k:'wiper',   n:'ワイパー',             m:12, km:null,   on:true},
+  {k:'tire',    n:'タイヤ（夏）',         m:48, km:40000,  on:true},
+  {k:'studless',n:'スタッドレスタイヤ',   m:48, km:null,   on:false},
+  {k:'rotation',n:'タイヤローテーション', m:12, km:5000,   on:true},
+  {k:'battery', n:'バッテリー',           m:36, km:null,   on:true},
+  {k:'coolant', n:'ラジエーター（冷却水）', m:48, km:null, on:true},
+  {k:'washer',  n:'ウォッシャー液',       m:6,  km:null,   on:true},
+  {k:'brake',   n:'ブレーキフルード',     m:24, km:null,   on:true},
+  {k:'acfilter',n:'エアコンフィルター',   m:12, km:15000,  on:true},
+  {k:'aircl',   n:'エアクリーナー',       m:48, km:40000,  on:true},
+  {k:'plug',    n:'スパークプラグ',       m:null, km:100000, on:true}
+];
+function mcfg(){
+  const c = S.mcfg || {}, it = c.items || {};
+  return {elemEvery: c.elemEvery || 2, items: MITEMS.map(d => Object.assign({}, d, it[d.k] || {}))};
+}
+function setMcfg(k, patch){
+  S.mcfg = S.mcfg || {}; S.mcfg.items = S.mcfg.items || {};
+  S.mcfg.items[k] = Object.assign({}, S.mcfg.items[k] || {}, patch); save();
+}
+function pdate(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function addMonths(s, n){ const d = pdate(s), day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth()+n); const last = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate(); d.setDate(Math.min(day,last)); return ymd(d); }
+function dayDiff(a, b){ return Math.round((pdate(b) - pdate(a)) / 864e5); }
+function jpDate(s, full){ const d = pdate(s); return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+(full ? d.getDate()+'日' : ''); }
+// 現在の走行距離＝給油の「入力」で登録した最新のオドメーター（カルテの入力値は使わない）
+function curOdo(vid){
+  const r = S.records.filter(r=>r.vid===vid && r.odo>0).sort((a,b)=> a.date<b.date?1 : a.date>b.date?-1 : b.odo-a.odo)[0];
+  return r ? {odo:r.odo, date:r.date} : null;
+}
+function mlist(vid, k){ return (S.maint||[]).filter(x=>x.vid===vid && x.item===k).sort((a,b)=> a.date<b.date?1 : a.date>b.date?-1 : (b.odo||0)-(a.odo||0)); }
+function grade(due, dueKm, cur){
+  const days = due ? dayDiff(today(), due) : null;
+  const kmLeft = (dueKm!=null && cur) ? dueKm - cur.odo : null;
+  const dSt = days==null ? null : days<0 ? 'over' : days<=30 ? 'soon' : 'ok';
+  const kSt = kmLeft==null ? null : kmLeft<0 ? 'over' : kmLeft<=500 ? 'soon' : 'ok';
+  const st = (dSt==='over'||kSt==='over') ? 'over' : (dSt==='soon'||kSt==='soon') ? 'soon' : 'ok';
+  return {days, kmLeft, st, dSt, kSt};
+}
+function mstat(it, vid, cfg, cur){
+  const hist = mlist(vid, it.k), last = hist[0] || null;
+  if(it.k==='element'){
+    const oilIt = cfg.items.find(i=>i.k==='oil'), oil = mstat(oilIt, vid, cfg, cur);
+    const since = last ? mlist(vid,'oil').filter(o=>o.date>last.date).length : null;
+    const r = last ? Math.max(1, cfg.elemEvery - since) : 1;   // あと何回目のオイル交換で替えるか
+    const note = r===1 ? '次回のオイル交換時' : r===2 ? '次々回のオイル交換時' : `${r}回後のオイル交換時`;
+    if(!last && !oil.last) return {it, hist, last, st:'none', note};
+    let due = null, dueKm = null;
+    if(oil.due) due = r===1 ? oil.due : (oilIt.m ? addMonths(oil.due, (r-1)*oilIt.m) : null);
+    if(oil.dueKm!=null) dueKm = oil.dueKm + (oilIt.km ? (r-1)*oilIt.km : 0);
+    if(!oil.last){ due = null; dueKm = null; }
+    const g = oil.last ? grade(due, dueKm, cur) : {st:'ok', days:null, kmLeft:null};
+    return Object.assign({it, hist, last, due, dueKm, note, nextAtOil: r===1}, g);
+  }
+  if(!last) return {it, hist, last, st:'none'};
+  const due = last.due || (it.m ? addMonths(last.date, it.m) : null);
+  const dueKm = (it.km && last.odo) ? last.odo + it.km : null;
+  return Object.assign({it, hist, last, due, dueKm}, grade(due, dueKm, cur));
+}
+function kalerts(vid){
+  if(!(S.maint||[]).some(m=>m.vid===vid)) return [];
+  const cfg = mcfg(), cur = curOdo(vid);
+  return cfg.items.filter(i=>i.on).map(i=>mstat(i, vid, cfg, cur)).filter(x=>x.last && (x.st==='over' || x.st==='soon'));
+}
+function leftText(x){
+  const a = [];
+  if(x.days!=null) a.push(x.days<0 ? `${-x.days}日超過` : x.days<=60 ? `あと${x.days}日` : `あと約${Math.round(x.days/30.4)}か月`);
+  if(x.kmLeft!=null) a.push(x.kmLeft<0 ? `${fmt(-x.kmLeft)}km超過` : `あと${fmt(x.kmLeft)}km`);
+  return a.join('・');
+}
+function dayText(d){ return d==null ? '' : d<0 ? `${-d}日超過` : d<=60 ? `あと${d}日` : `あと約${Math.round(d/30.4)}か月`; }
+function kmText(k){ return k<0 ? `${fmt(-k)}km超過` : `あと${fmt(k)}km`; }
+function renderKarte(){
+  const v = veh(); if(!v) return `<div class="empty">設定から車両を追加してください。</div>`;
+  const cfg = mcfg(), cur = curOdo(v.id);
+  const items = cfg.items.filter(i=>i.on).map(i=>mstat(i, v.id, cfg, cur));
+  const sk = items.find(x=>x.it.k==='shaken');
+  let hero = '';
+  {
+    let bar = '<span>車検の記録がありません。下の「入力」から登録してください</span>', cls = '';
+    if(sk && sk.due){ cls = sk.st==='ok'?'':sk.st; bar = `<span>次回車検日まで <b class="num" style="font-size:16px">${sk.days<0? (-sk.days)+'日超過' : 'あと'+(sk.days<=60? sk.days+'日' : '約'+Math.round(sk.days/30.4)+'か月')}</b></span>`; }
+    hero = `<div class="khero"><div class="bar ${cls}">${bar}</div><dl>
+      <dt>次回車検</dt><dd>${sk&&sk.due ? slashDate(sk.due) : '—'}${sk&&sk.last ? `<i>前回 ${slashDate(sk.last.date)}</i>`:''}</dd>
+      <dt>走行距離</dt><dd>${cur ? fmt(cur.odo)+' km' : '—'}<i>${cur ? '給油記録 '+slashDate(cur.date)+' 時点' : '給油の「入力」で登録すると表示されます'}</i></dd></dl></div>`;
+  }
+  const cards = items.map(x => {
+    const it = x.it, k = it.k, open = ui.mopen===k, form = ui.mform && ui.mform.k===k;
+    let due;
+    const cl = s => s==='over'?'over':s==='soon'?'soon':'';
+    const lines = () => {
+      let h = '';
+      if(x.due) h += `<div class="kln"><span class="klab">日付</span><span class="kdue ${cl(x.dSt)}">${jpDate(x.due, it.full)}</span><small class="${cl(x.dSt)}">${dayText(x.days)}</small></div>`;
+      if(x.dueKm!=null) h += `<div class="kln"><span class="klab">走行</span><span class="kdue ${cl(x.kSt)}">${fmt(x.dueKm)} km</span><small class="${cl(x.kSt)}">${x.kmLeft!=null ? kmText(x.kmLeft) : '走行距離未入力'}</small></div>`;
+      return h;
+    };
+    if(x.st==='none') due = `<div class="kdue none">${k==='element' && x.note ? x.note : '未登録'}</div>`;
+    else if(k==='element') due = `<div class="knote ${cl(x.st)}">${x.note}</div>` + lines();
+    else due = lines() || `<div class="kdue none">目安が未設定です（設定で変更）</div>`;
+    const last = x.last ? `<div class="klast">前回 <span class="num">${slashDate(x.last.date)}</span>${x.last.odo?`　<span class="num">${fmt(x.last.odo)}</span> km`:''}${x.last.memo?`　${esc(x.last.memo)}`:''}</div>` : '';
+    let h = `<section class="kitem ${x.st==='over'?'over':''}"><div class="kh"><b>${esc(it.n)}${x.st==='over'?' <span class="chip bad">交換時期超過</span>':''}</b>
+      ${x.hist.length ? `<button class="lnk" data-act="mopen" data-k="${k}" aria-expanded="${open}">履歴 ${x.hist.length}件 ${open?'∧':'›'}</button>` : ''}</div>
+      <div class="kbody"><div><div class="klab">${k==='shaken'?'次回車検日':'次回交換推奨'}</div>${due}${last}</div>
+      <button class="btn kbtn ${form?'':'primary'}" data-act="mform" data-k="${k}">${form?'閉じる':'入力'}</button></div>`;
+    if(form) h += kform(it, x, cur, cfg);
+    if(open && x.hist.length) h += `<ul class="khist">${x.hist.map(m=>`<li><span><span class="num" style="font-size:15px">${slashDate(m.date)}</span>${m.odo?`　${fmt(m.odo)} km`:''}${m.due?`　満了 ${slashDate(m.due)}`:''}${m.memo?`<br><span class="hint">${esc(m.memo)}</span>`:''}</span>
+      <button class="btn ${ui.armed==='mdel:'+m.id?'armed':'danger'}" data-act="mdel" data-id="${m.id}">${ui.armed==='mdel:'+m.id?'もう一度で削除':'削除'}</button></li>`).join('')}</ul>`;
+    return h + `</section>`;
+  }).join('');
+  return `<div class="stack">${hero}${cards}
+    <p class="hint">「入力」で最新の交換日を登録すると、設定の交換目安（か月・km）から次回の推奨時期を出します。日付・走行距離のどちらかが目安を超えた項目は赤く表示します。現在の走行距離は給油の「入力」で登録した最新のオドメーターです。項目の表示や目安は設定で変えられます。</p></div>`;
+}
+function kform(it, x, cur, cfg){
+  const f = ui.mform;
+  return `<div class="kform">
+    <label class="lbl" for="mdate">${it.k==='shaken'?'車検を受けた日':it.k==='tenken'?'点検日':'交換日'}</label>
+    <input type="date" id="mdate" value="${f.date}" data-change="mdate">
+    <label class="lbl" for="modo">${it.k==='shaken'?'車検時':'交換時'}の走行距離（km）</label>
+    <input class="text" id="modo" inputmode="numeric" value="${esc(f.odo)}" data-change="modo" placeholder="${cur?'最新 '+cur.odo:'例：35105'}">
+    ${it.k==='shaken' ? `<label class="lbl" for="mdue">次回の車検満了日（車検証の日付・任意）</label><input type="date" id="mdue" value="${f.due}" data-change="mdue"><p class="hint" style="margin:0">空欄なら受けた日の${it.m||24}か月後で計算します。</p>` : ''}
+    ${it.k==='oil' ? `<label class="toggle">オイルエレメントも交換した<input type="checkbox" data-change="melem" ${f.elem?'checked':''}></label><p class="hint" style="margin:0">エレメントはオイル交換${cfg.elemEvery}回に1回の交換を推奨します${f.elemDue?'（今回が交換時期です）':'（今回は不要の見込み）'}。</p>` : ''}
+    <input class="text" id="mmemo" value="${esc(f.memo)}" data-change="mmemo" placeholder="店舗・メモ（任意。例：オートバックス）">
+    <button class="btn primary" data-act="msave">登録する</button>
+  </div>`;
+}
+function openMform(k){
+  const v = veh(), cfg = mcfg(), cur = curOdo(v.id);
+  const f = {k, date:today(), odo: cur ? String(cur.odo) : '', memo:'', due:'', elem:false, elemDue:false};
+  if(k==='oil'){ const el = mstat(cfg.items.find(i=>i.k==='element'), v.id, cfg, cur); f.elemDue = !el.last || el.nextAtOil; f.elem = f.elemDue; }
+  ui.mform = f;
+}
+function msave(){
+  const f = ui.mform, v = veh();
+  if(!f.date){ toast('日付を選んでください'); return; }
+  const odo = parseInt(String(f.odo).replace(/[^\d]/g,''), 10);
+  const base = {vid:v.id, date:f.date, odo: odo>0 ? odo : null, memo:f.memo.trim()};
+  S.maint = S.maint || [];
+  S.maint.push(Object.assign({id:uid(), item:f.k}, base, f.k==='shaken' && f.due ? {due:f.due} : {}));
+  if(f.k==='oil' && f.elem) S.maint.push(Object.assign({id:uid(), item:'element'}, base));
+  save(); ui.mform = null; render(); toast(f.k==='oil' && f.elem ? 'オイルとエレメントを登録しました' : '登録しました');
+}
+function karteSettings(){
+  const cfg = mcfg();
+  const rows = cfg.items.filter(i=>i.k!=='element').map(i=>`<div class="kcfg">
+      <label><input type="checkbox" data-change="mcon" data-k="${i.k}" ${i.on?'checked':''}><span>${esc(i.n)}</span></label>
+      <input class="text" inputmode="numeric" data-change="mcm" data-k="${i.k}" value="${i.m||''}" placeholder="—" aria-label="${esc(i.n)}の交換目安（か月）">
+      <input class="text" inputmode="numeric" data-change="mckm" data-k="${i.k}" value="${i.km||''}" placeholder="—" aria-label="${esc(i.n)}の交換目安（km）">
+    </div>`).join('');
+  const el = cfg.items.find(i=>i.k==='element');
+  return `<section class="sec"><h2>車カルテの交換目安</h2><div class="card stack">
+    <p class="hint" style="margin:0">チェックした項目がカルテに出ます。か月・kmのどちらか早い方を次回の推奨時期にします（空欄は使いません）。目安は一般的な値なので、車検証や取扱説明書のメンテナンスノートに合わせて調整してください。</p>
+    <div class="kcfg head"><span>項目</span><span>か月</span><span>km</span></div>
+    ${rows}
+    <div class="kcfg"><label><input type="checkbox" data-change="mcon" data-k="element" ${el.on?'checked':''}><span>オイルエレメント</span></label>
+      <span class="hint" style="text-align:right">オイル交換</span>
+      <span style="display:flex;align-items:center;gap:4px"><input class="text" inputmode="numeric" data-change="melev" value="${cfg.elemEvery}" style="width:44px">回に1回</span></div>
+    <div class="btnrow"><button class="btn ${ui.armed==='mreset'?'armed':''}" data-act="mreset">${ui.armed==='mreset'?'もう一度押すと初期値に戻します':'目安を初期値に戻す'}</button></div>
+  </div></section>`;
+}
+
 /* ---------- settings ---------- */
 function renderSettings(){
   const vl = S.vehicles.map(v=>{
@@ -592,6 +807,8 @@ function renderSettings(){
     <button class="btn ${ui.armed==='restore'?'armed':''}" data-act="restore">${ui.armed==='restore'?'今のデータを置き換えます。もう一度押すと復元':'復元する'}</button>
   </div></section>
 
+${karteSettings()}
+
   <section class="sec"><h2>読み取り用の指示文</h2><div class="card stack">
     <p class="hint" style="margin:0">{車両名} {燃料} {前回km} {前回日付} はコピー時に自動で置き換わります。</p>
     <textarea class="text" id="ptext" data-change="ptext" style="min-height:180px">${esc(S.prompt||DEFAULT_PROMPT)}</textarea>
@@ -599,7 +816,7 @@ function renderSettings(){
   </div></section>
 
   ${S.sample?`<section class="sec"><h2>例のデータ</h2><div class="card stack"><p class="hint" style="margin:0">いま表示しているルーミーの25件は動作確認用の例です（直近3件のみ実際の画面の値）。消去すると記録が空になり、車両はそのまま残ります。</p><button class="btn ${ui.armed==='sample'?'armed':''}" data-act="clearSample">${ui.armed==='sample'?'もう一度押すと消去します':'例のデータを消去して使い始める'}</button></div></section>`:''}
-  <p class="hint">給油記録帳 v1.0</p>
+  <p class="hint">給油記録帳 v1.1</p>
   </div>`;
 }
 function vehForm(v){
@@ -610,7 +827,7 @@ function vehForm(v){
   </div><div class="btnrow"><button class="btn primary" data-act="vsave" data-id="${v?v.id:'new'}">保存</button><button class="btn" data-act="vcancel">やめる</button>
   ${v?`<button class="btn danger ${ui.armed==='vdel'?'armed':''}" data-act="vdel" data-id="${v.id}">${ui.armed==='vdel'?'記録ごと削除します。もう一度押す':'この車両を削除'}</button>`:''}</div></div>`;
 }
-function backupJSON(){ return JSON.stringify({app:'fuel-log', version:1, exportedAt:new Date().toISOString(), vehicles:S.vehicles, records:S.records, settings:{prompt:S.prompt}}, null, 1); }
+function backupJSON(){ return JSON.stringify({app:'fuel-log', version:1, exportedAt:new Date().toISOString(), vehicles:S.vehicles, records:S.records, maint:S.maint||[], settings:{prompt:S.prompt, mcfg:S.mcfg||null}}, null, 1); }
 function csv(){
   const names = Object.fromEntries(S.vehicles.map(v=>[v.id,v.name]));
   const q = s => '"'+String(s).replace(/"/g,'""')+'"';
@@ -626,7 +843,7 @@ function restore(){
   let o=null; try{ o = JSON.parse(ui.restoreText); }catch(e){}
   if(!o || !Array.isArray(o.vehicles) || !Array.isArray(o.records) || !o.vehicles.length){ ui.armed=null; render(); toast('バックアップの形式が読み取れません'); return; }
   if(ui.armed!=='restore'){ ui.armed='restore'; render(); return; }
-  S = {vehicles:o.vehicles, records:o.records, activeVid:o.vehicles[0].id, prompt:(o.settings&&o.settings.prompt)||null, lastBackup:Date.now(), sample:false};
+  S = {vehicles:o.vehicles, records:o.records, activeVid:o.vehicles[0].id, prompt:(o.settings&&o.settings.prompt)||null, lastBackup:Date.now(), sample:false, maint:Array.isArray(o.maint)?o.maint:[], mcfg:(o.settings&&o.settings.mcfg)||null};
   save(); ui.armed=null; ui.restoreText=''; F=null; ui.view='history'; render(); toast('復元しました');
 }
 
@@ -634,10 +851,10 @@ function restore(){
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if(!b) return;
   const a = b.dataset.act, id = b.dataset.id;
-  if(a!=='delRec' && a!=='restore' && a!=='clearSample' && a!=='vdel') ui.armed=null;
+  if(a!=='delRec' && a!=='restore' && a!=='clearSample' && a!=='vdel' && a!=='mdel' && a!=='mreset') ui.armed=null;
   switch(a){
     case 'go': if(b.dataset.v==='input' && ui.view!=='input'){ F=null; } ui.view=b.dataset.v; ui.fallback=null; render(); window.scrollTo(0,0); break;
-    case 'vprev': case 'vnext': { const i=S.vehicles.findIndex(v=>v.id===S.activeVid), n=S.vehicles.length; S.activeVid=S.vehicles[(i+(a==='vnext'?1:-1)+n)%n].id; save(); if(ui.view==='input') F=null; render(); break; }
+    case 'vprev': case 'vnext': { const i=S.vehicles.findIndex(v=>v.id===S.activeVid), n=S.vehicles.length; S.activeVid=S.vehicles[(i+(a==='vnext'?1:-1)+n)%n].id; save(); if(ui.view==='input') F=null; ui.mform=null; ui.mopen=null; render(); break; }
     case 'edit': F = newForm(S.records.find(r=>r.id===id)); ui.view='input'; render(); window.scrollTo(0,0); break;
     case 'cancelEdit': F=null; ui.view='history'; render(); break;
     case 'period': ui.period=b.dataset.k; render(); break;
@@ -662,9 +879,14 @@ document.addEventListener('click', e => {
     }
     case 'copyCSV': copy(csv()); break;
     case 'restore': restore(); break;
+    case 'mform': if(ui.mform && ui.mform.k===b.dataset.k) ui.mform=null; else openMform(b.dataset.k); render(); break;
+    case 'mopen': ui.mopen = ui.mopen===b.dataset.k ? null : b.dataset.k; render(); break;
+    case 'msave': msave(); break;
+    case 'mdel': if(ui.armed!=='mdel:'+id){ ui.armed='mdel:'+id; render(); } else { S.maint=S.maint.filter(m=>m.id!==id); save(); ui.armed=null; render(); toast('削除しました'); } break;
+    case 'mreset': if(ui.armed!=='mreset'){ ui.armed='mreset'; render(); } else { S.mcfg=null; save(); ui.armed=null; render(); toast('初期値に戻しました'); } break;
     case 'resetPrompt': S.prompt=null; save(); render(); toast('初期状態に戻しました'); break;
     case 'clearSample': if(ui.armed!=='sample'){ ui.armed='sample'; render(); } else { S.records=[]; S.sample=false; S.lastBackup=null; save(); ui.armed=null; render(); toast('例のデータを消去しました'); } break;
-    case 'vshow': S.activeVid=id; save(); ui.view='history'; render(); break;
+    case 'vshow': S.activeVid=id; ui.mform=null; ui.mopen=null; save(); ui.view='history'; render(); break;
     case 'vedit': ui.vedit=id; render(); break;
     case 'vcancel': ui.vedit=null; render(); break;
     case 'vsave': {
@@ -677,7 +899,7 @@ document.addEventListener('click', e => {
     case 'vdel':
       if(S.vehicles.length<2){ toast('車両は1台以上必要です'); return; }
       if(ui.armed!=='vdel'){ ui.armed='vdel'; render(); }
-      else { S.vehicles=S.vehicles.filter(v=>v.id!==id); S.records=S.records.filter(r=>r.vid!==id); if(S.activeVid===id) S.activeVid=S.vehicles[0].id; save(); ui.armed=null; ui.vedit=null; render(); toast('削除しました'); }
+      else { S.vehicles=S.vehicles.filter(v=>v.id!==id); S.records=S.records.filter(r=>r.vid!==id); S.maint=(S.maint||[]).filter(m=>m.vid!==id); if(S.activeVid===id) S.activeVid=S.vehicles[0].id; save(); ui.armed=null; ui.vedit=null; render(); toast('削除しました'); }
       break;
   }
 });
@@ -687,6 +909,8 @@ document.addEventListener('input', e => {
   else if(k==='fmemo') F.memo=t.value;
   else if(k==='fpaste') F.paste=t.value;
   else if(k==='rtext'){ ui.restoreText=t.value; ui.armed=null; }
+  else if(k==='modo') ui.mform.odo=t.value;
+  else if(k==='mmemo') ui.mform.memo=t.value;
   else if(k==='ptext'){ S.prompt = t.value.trim()===DEFAULT_PROMPT.trim() ? null : t.value; save(); }
 });
 document.addEventListener('change', e => {
@@ -696,6 +920,12 @@ document.addEventListener('change', e => {
   else if(k==='fex'){ F.exclude=t.checked; }
   else if(k==='target'){ ui.target=t.value; render(); }
   else if(k==='agg'){ ui.agg=t.value; render(); }
+  else if(k==='mdate'){ ui.mform.date=t.value; }
+  else if(k==='mdue'){ ui.mform.due=t.value; }
+  else if(k==='melem'){ ui.mform.elem=t.checked; }
+  else if(k==='mcon'){ setMcfg(t.dataset.k, {on:t.checked}); }
+  else if(k==='mcm' || k==='mckm'){ const n=parseInt(t.value.replace(/[^\d]/g,''),10); setMcfg(t.dataset.k, k==='mcm' ? {m: n>0?n:null} : {km: n>0?n:null}); t.value = n>0?n:''; }
+  else if(k==='melev'){ const n=parseInt(t.value,10); S.mcfg=S.mcfg||{}; S.mcfg.elemEvery = n>=1 && n<=9 ? n : 2; save(); t.value=S.mcfg.elemEvery; }
   else if(k==='rfile' && t.files[0]){ const r=new FileReader(); r.onload=()=>{ ui.restoreText=String(r.result); ui.armed=null; render(); }; r.readAsText(t.files[0]); }
 });
 document.addEventListener('keydown', e => {

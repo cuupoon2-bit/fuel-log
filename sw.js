@@ -1,5 +1,5 @@
 // 更新時は VERSION を変えるとアプリ側のキャッシュが入れ替わります
-const VERSION = 'fuel-log-v1';
+const VERSION = 'fuel-log-v3';
 const FILES = ['./', './index.html', './chart.umd.js', './manifest.webmanifest',
   './fonts/barlow-condensed-500.woff2', './fonts/barlow-condensed-600.woff2', './fonts/barlow-condensed-700.woff2',
   './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png'];
