@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111517">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="給油記録帳">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>給油記録帳</title>
+<style>
+@font-face{font-family:"Barlow Condensed";font-weight:500;font-style:normal;font-display:swap;src:url(fonts/barlow-condensed-500.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-weight:600;font-style:normal;font-display:swap;src:url(fonts/barlow-condensed-600.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-weight:700;font-style:normal;font-display:swap;src:url(fonts/barlow-condensed-700.woff2) format("woff2")}
+/* layout: single-column phone app shell — sticky vehicle header, scrolling view, fixed five-tab bar */
+:root{
+  --bg:#111517; --surface:#1a1f22; --surface2:#242a2e; --line:#323a3f;
+  --fg:#e6ebed; --muted:#8b979d; --accent:#f0a23b; --on-accent:#1d1406;
+  --eco:#4cc3ae; --warn:#e9b949; --bad:#ec6b60;
+  --c-avg:#4cc3ae; --c-seg:#7aa9f0; --c-price:#f0a23b; --c-odo:#b49be0; --c-liters:#5cc0e8; --c-money:#8fcf7a;
+  --f-body:"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+  --f-num:"Barlow Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+  --r:14px;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#eef1f2; --surface:#ffffff; --surface2:#e3e8ea; --line:#cfd6d9;
+    --fg:#172024; --muted:#5a676d; --accent:#c4741a; --on-accent:#ffffff;
+    --eco:#16897a; --warn:#a87708; --bad:#c43d33;
+    --c-avg:#16897a; --c-seg:#3b6fc4; --c-price:#c4741a; --c-odo:#7b5cbf; --c-liters:#1f8fb8; --c-money:#4c9a37;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#eef1f2; --surface:#ffffff; --surface2:#e3e8ea; --line:#cfd6d9;
+  --fg:#172024; --muted:#5a676d; --accent:#c4741a; --on-accent:#ffffff;
+  --eco:#16897a; --warn:#a87708; --bad:#c43d33;
+  --c-avg:#16897a; --c-seg:#3b6fc4; --c-price:#c4741a; --c-odo:#7b5cbf; --c-liters:#1f8fb8; --c-money:#4c9a37;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font-size:15px}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+
+.app{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;padding-block:10px 8px}
+.iconbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.iconbtn svg{width:18px;height:18px;stroke:var(--fg);fill:none;stroke-width:2}
+.iconbtn:disabled{opacity:.35;cursor:default}
+.vtitle{text-align:center;min-width:0}
+.vtitle b{display:block;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vtitle span{font-size:12px;color:var(--muted);letter-spacing:.06em}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav.tabs button{background:none;border:0;padding:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted)}
+nav.tabs svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button[aria-current="page"]{color:var(--accent)}
+nav.tabs button.add svg{width:30px;height:30px}
+
+.banner{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--r);padding:10px 14px;font-size:13px;margin-bottom:12px}
+.banner button{flex:none}
+.stack{display:flex;flex-direction:column;gap:14px}
+
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 8px 8px;text-align:center}
+.tile .lab{font-size:12px;color:var(--muted);letter-spacing:.08em}
+.tile .val{font-family:var(--f-num);font-weight:700;font-size:38px;line-height:1.05;font-variant-numeric:tabular-nums}
+.tile .u{font-size:11px;color:var(--muted)}
+.tile.latest .val{color:var(--eco)}
+.tile.best .val{color:var(--accent)}
+
+.listhead{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);letter-spacing:.06em;padding:4px 2px 0}
+.hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.item{width:100%;text-align:left;display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+.gauge{width:72px;height:72px;border-radius:50%;display:grid;place-content:center;text-align:center;border:3px solid var(--eco);line-height:1}
+.gauge b{font-family:var(--f-num);font-size:26px;font-weight:700}
+.gauge small{font-size:10px;color:var(--muted);margin-top:2px}
+.gauge.none{border-color:var(--line);border-style:dashed}
+.gauge.none b{font-size:13px;font-family:var(--f-body);font-weight:500;color:var(--muted)}
+.gauge.out{border-color:var(--bad)}
+.gauge.ex{opacity:.5}
+.meta{min-width:0}
+.meta .d{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-family:var(--f-num);font-weight:600;font-size:19px}
+.meta dl{margin:2px 0 0;display:grid;grid-template-columns:auto 1fr;column-gap:10px;font-size:13px;color:var(--muted)}
+.meta dt{white-space:nowrap}
+.meta dd{margin:0;color:var(--fg);font-family:var(--f-num);font-size:15px;font-variant-numeric:tabular-nums}
+.meta dd i{font-style:normal;color:var(--muted)}
+.chip{display:inline-block;font-family:var(--f-body);font-size:11px;font-weight:500;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.chip.bad{border-color:var(--bad);color:var(--bad)}
+.chip.warn{border-color:var(--warn);color:var(--warn)}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:28px 18px;text-align:center;color:var(--muted)}
+
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 14px;font-size:13px;font-weight:500}
+.pill[aria-pressed="true"]{background:var(--sc,var(--accent));border-color:var(--sc,var(--accent));color:var(--on-accent)}
+.pill .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--sc,var(--accent));margin-right:6px;vertical-align:1px}
+.pill[aria-pressed="true"] .dot{background:var(--on-accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.chartbox{position:relative;height:320px}
+.hint{font-size:12px;color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.select{width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);font-size:14px}
+label.lbl{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;letter-spacing:.04em}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat .lab{font-size:12px;color:var(--muted)}
+.stat .v{font-family:var(--f-num);font-weight:600;font-size:24px;font-variant-numeric:tabular-nums}
+.stat .v small{font-size:13px;color:var(--muted);font-family:var(--f-body);margin-left:3px}
+
+/* input */
+.inhead{display:flex;gap:8px;align-items:center}
+.inhead input[type=date]{flex:1;min-width:0;padding:9px 12px;border-radius:10px;border:1.5px solid var(--accent);background:var(--surface);font-family:var(--f-num);font-size:18px;text-align:center}
+.ftabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.ftab{background:none;border:0;border-bottom:3px solid transparent;padding:6px 2px 6px;text-align:center;font-size:12px;color:var(--muted)}
+.ftab b{display:block;font-family:var(--f-num);font-size:17px;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftab b.auto{color:var(--muted)}
+.ftab[aria-selected="true"]{border-bottom-color:var(--accent);color:var(--fg)}
+.ftab.low b{color:var(--warn)}
+.display{display:flex;align-items:baseline;justify-content:flex-end;gap:10px;padding:6px 6px 2px;min-height:96px}
+.display .n{font-family:var(--f-num);font-weight:500;font-size:68px;line-height:1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;text-align:right;min-width:0}
+.display .n.ph{color:var(--muted)}
+.display .u{font-size:22px;color:var(--muted);flex:none}
+.subline{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);padding:0 6px;min-height:18px}
+.subline .w{color:var(--warn)}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.key{height:54px;border-radius:12px;border:0;background:var(--surface2);font-family:var(--f-num);font-size:28px;font-weight:500}
+.key.fn{font-family:var(--f-body);font-size:15px;font-weight:500}
+.key:active{background:var(--line)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px}
+.toggle input{width:20px;height:20px;accent-color:var(--accent)}
+.text{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:14px}
+textarea.text{min-height:110px;resize:vertical;font-size:13px;line-height:1.5}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;font-weight:500;font-size:14px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn.big{width:100%;padding:14px;font-size:18px}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.armed{background:var(--bad);color:#fff;border-color:var(--bad)}
+.btn.claude{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.msg{border-radius:12px;padding:10px 12px;font-size:13px;background:var(--surface2)}
+.msg.warn{border-left:4px solid var(--warn)}
+.msg.err{border-left:4px solid var(--bad)}
+.msg ul{margin:4px 0 0;padding-left:18px}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px}
+.sheet h3,.card h3{margin:0;font-size:15px}
+.steps{margin:0;padding-left:20px;font-size:13px;color:var(--muted)}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+
+/* settings */
+.sec h2{font-size:13px;color:var(--muted);letter-spacing:.08em;margin:6px 2px 8px;font-weight:500}
+.vlist{display:flex;flex-direction:column;gap:6px}
+.vrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface2)}
+.vrow .nm{font-weight:700}
+.vrow .sub{font-size:12px;color:var(--muted)}
+.form3{display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:420px){.form3{grid-template-columns:2fr 1fr 1fr}}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:13px;z-index:20;transition:opacity .2s}
+.toast[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <button class="iconbtn" data-act="vprev" aria-label="前の車両"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="vtitle"><b id="vname"></b><span id="vview"></span></div>
+    <button class="iconbtn" data-act="vnext" aria-label="次の車両"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </header>
+  <main id="view"></main>
+</div>
+
+<nav class="tabs" aria-label="画面切り替え"><div class="in">
+  <button data-act="go" data-v="history"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>履歴</button>
+  <button data-act="go" data-v="trend"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M5 15l4-5 4 3 6-7"/></svg>推移</button>
+  <button data-act="go" data-v="input" class="add"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v10M7 12h10"/></svg>入力</button>
+  <button data-act="go" data-v="analysis"><svg viewBox="0 0 24 24"><path d="M5 20V11M10 20V5M15 20v-7M20 20V9"/></svg>分析</button>
+  <button data-act="go" data-v="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>設定</button>
+</div></nav>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script src="chart.umd.js"></script>
+<script>
+(function(){
+'use strict';
+const FUELS = ['レギュラー','ハイオク','軽油'];
+const DEFAULT_PROMPT = [
+'添付画像はガソリンスタンドのレシート、または車のメーターです（両方の場合もあります）。',
+'次の形式のJSONだけを返してください。説明文は不要です。読み取れない項目はnullにしてください。',
+'{"date":"YYYY-MM-DD","liters":数値,"unitPrice":数値,"totalPrice":数値,"fuelType":"レギュラー|ハイオク|軽油","station":"文字列","odometer":数値,"confidence":"high|low"}',
+'・金額は値引き後の支払額を使う',
+'・メーターはODO（総走行距離）を読み、TRIPの数値は無視する',
+'参考：車両 {車両名}（{燃料}）、前回オドメーター {前回km}km（{前回日付}）'
+].join('\n');
+const SERIES = [
+  {k:'avg',   n:'平均燃費',   g:'kmL', c:'--c-avg'},
+  {k:'seg',   n:'区間燃費',   g:'kmL', c:'--c-seg'},
+  {k:'price', n:'ガソリン価格', g:'yenL', c:'--c-price'},
+  {k:'odo',   n:'オドメーター', g:'km',  c:'--c-odo'},
+  {k:'liters',n:'総給油量',   g:'L',   c:'--c-liters'},
+  {k:'money', n:'給油金額',   g:'yen', c:'--c-money'}
+];
+const GROUP_UNIT = {kmL:'km/L', yenL:'円/L', km:'km', L:'L', yen:'円'};
+const VIEW_LABEL = {history:'履歴', trend:'推移', input:'入力', analysis:'分析', settings:'設定'};
+
+/* ---------- state ---------- */
+let S;
+const ui = {view:'history', period:'all', series:['seg','price'], target:'all', agg:'month', metric:'econ', armed:null, showBackup:false, restoreText:'', vedit:null, fallback:null};
+let F = null; let chart = null;
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+function sample(){
+  const rows = [
+    ['2025-05-03',35890,30.10,166],['2025-05-24',36240,28.50,163],['2025-06-14',36610,30.20,162],
+    ['2025-07-05',36980,29.80,163],['2025-07-26',37290,27.10,165],['2025-08-16',37760,33.00,164],
+    ['2025-09-06',38120,30.50,162],['2025-09-27',38470,28.90,161],['2025-10-18',38830,30.40,159],
+    ['2025-11-15',39170,29.60,156],['2025-12-13',39500,31.20,155],['2026-01-17',39820,30.10,153],
+    ['2026-02-14',40150,29.30,150],['2026-03-14',40520,30.80,150],['2026-04-11',40900,31.50,151],
+    ['2026-05-09',41280,30.20,150],['2026-06-06',41690,32.10,151],['2026-07-04',42050,28.40,152],
+    ['2026-07-25',42240,12.00,152,false],['2026-08-15',42640,34.50,152],['2026-08-24',43020,29.20,151],
+    ['2026-09-01',43387,27.50,151],['2026-09-11',43508,15.13,151],
+    ['2026-09-22',43941,29.40,151,true,4439],['2026-10-18',44210,26.51,151,true,4003]
+  ];
+  const records = rows.map(r => ({id:uid(), vid:'v1', date:r[0], odo:r[1], liters:r[2], price:r[5] || Math.round(r[2]*r[3]), full:r[4]!==false, exclude:false, memo:'', station:''}));
+  return {vehicles:[{id:'v1', name:'ルーミー', fuel:'レギュラー', tank:36}], records, activeVid:'v1', prompt:null, lastBackup:null, sample:true};
+}
+const DB = {
+  db:null,
+  open(){ return new Promise((res,rej)=>{ const r=indexedDB.open('fuel-log',1); r.onupgradeneeded=()=>r.result.createObjectStore('kv'); r.onsuccess=()=>{ this.db=r.result; res(); }; r.onerror=()=>rej(r.error); }); },
+  get(k){ return new Promise(res=>{ try{ const q=this.db.transaction('kv').objectStore('kv').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(null); }catch(e){ res(null); } }); },
+  put(k,v){ try{ this.db.transaction('kv','readwrite').objectStore('kv').put(v,k); }catch(e){} }
+};
+function initial(){ return {vehicles:[{id:uid(), name:'ルーミー', fuel:'レギュラー', tank:36}], records:[], activeVid:null, prompt:null, lastBackup:null, sample:false}; }
+async function load(){
+  try{ await DB.open(); const o = await DB.get('state'); if(o && Array.isArray(o.vehicles) && Array.isArray(o.records)){ S = o; return; } }catch(e){}
+  S = initial(); S.activeVid = S.vehicles[0].id; save();
+}
+function save(){ if(DB.db) DB.put('state', JSON.parse(JSON.stringify(S))); }
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (n,d=0) => (n==null||!isFinite(n)) ? '—' : Number(n).toLocaleString('ja-JP',{minimumFractionDigits:d, maximumFractionDigits:d});
+const slashDate = s => s ? s.replace(/-/g,'/') : '';
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function veh(){ return S.vehicles.find(v=>v.id===S.activeVid) || S.vehicles[0]; }
+function toast(t){ const el=$('#toast'); el.textContent=t; el.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>el.hidden=true, 1800); }
+
+/* ---------- calculation (full-tank method) ---------- */
+function compute(vid){
+  const rs = S.records.filter(r=>r.vid===vid).sort((a,b)=> a.date<b.date?-1 : a.date>b.date?1 : a.odo-b.odo);
+  let prev=null, lastFull=null, acc=0;
+  const out = rs.map(r => {
+    const d = {r, dist: prev ? r.odo - prev.odo : null, unit: r.liters>0 ? r.price/r.liters : null, econ:null, segDist:0, segLiters:0};
+    if(prev) acc += r.liters;
+    if(r.full){
+      if(lastFull && acc>0){ d.segDist = r.odo - lastFull.odo; d.segLiters = acc; d.econ = d.segDist/acc; }
+      lastFull = r; acc = 0;
+    }
+    prev = r; return d;
+  });
+  const es = out.filter(d=>d.econ!=null && !d.r.exclude).map(d=>d.econ).sort((a,b)=>a-b);
+  const med = es.length ? es[Math.floor(es.length/2)] : null;
+  out.forEach(d => { d.outlier = d.econ!=null && med!=null && Math.abs(d.econ-med)/med > 0.5; d.counted = d.econ!=null && !d.r.exclude; });
+  return out;
+}
+function summarize(ds){
+  let sd=0, sl=0, best=null, latest=null;
+  ds.forEach(d=>{ if(d.counted){ sd+=d.segDist; sl+=d.segLiters; if(best==null||d.econ>best) best=d.econ; } if(d.econ!=null) latest=d.econ; });
+  return {avg: sl>0 ? sd/sl : null, best, latest};
+}
+
+/* ---------- render ---------- */
+function render(){
+  const v = veh();
+  $('#vname').textContent = v ? v.name : '車両なし';
+  $('#vview').textContent = VIEW_LABEL[ui.view] + (S.vehicles.length>1 ? '　' + (S.vehicles.indexOf(v)+1) + ' / ' + S.vehicles.length : '');
+  document.querySelectorAll('[data-act=vprev],[data-act=vnext]').forEach(b=>b.disabled = S.vehicles.length<2);
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-current', b.dataset.v===ui.view ? 'page':'false'));
+  if(chart){ chart.destroy(); chart=null; }
+  const fn = {history:renderHistory, trend:renderTrend, input:renderInput, analysis:renderAnalysis, settings:renderSettings}[ui.view];
+  $('#view').innerHTML = fn();
+  if(ui.view==='trend') drawTrend();
+  if(ui.view==='analysis') drawAnalysis();
+}
+
+function banners(){
+  let h='';
+  if(S.sample) h += `<div class="banner"><span>表示中は例のデータです。設定から消去して使い始められます。</span><button class="btn" data-act="go" data-v="settings">設定へ</button></div>`;
+  else if(S.records.length){
+    const days = S.lastBackup ? (Date.now()-S.lastBackup)/864e5 : Infinity;
+    if(days>30) h += `<div class="banner"><span>${S.lastBackup ? '前回のバックアップから30日以上経っています。' : 'まだバックアップを取っていません。'}</span><button class="btn" data-act="go" data-v="settings">バックアップ</button></div>`;
+  }
+  return h;
+}
+
+function renderHistory(){
+  const v = veh(); if(!v) return `<div class="empty">設定から車両を追加してください。</div>`;
+  const ds = compute(v.id), s = summarize(ds);
+  let h = banners() + `<div class="stack">
+  <section class="summary" aria-label="燃費のまとめ">
+    <div class="tile latest"><div class="lab">最新</div><div class="val">${fmt(s.latest,1)}</div><div class="u">km/L</div></div>
+    <div class="tile"><div class="lab">平均</div><div class="val">${fmt(s.avg,1)}</div><div class="u">km/L</div></div>
+    <div class="tile best"><div class="lab">ベスト</div><div class="val">${fmt(s.best,1)}</div><div class="u">km/L</div></div>
+  </section>
+  <div class="listhead"><span>給油履歴</span><span>給油回数 <b class="num">${ds.length}</b> 回</span></div>`;
+  if(!ds.length) return h + `<div class="empty">まだ記録がありません。下の「入力」から最初の給油を記録してください。最初の1件は燃費計算の基準になります。</div></div>`;
+  h += `<ol class="hist">`;
+  ds.slice().reverse().forEach((d,i) => {
+    const r=d.r; let g, chips='';
+    if(d.econ!=null){ g = `<div class="gauge${d.outlier?' out':''}${r.exclude?' ex':''}"><b>${fmt(d.econ,1)}</b><small>km/L</small></div>`; }
+    else g = `<div class="gauge none"><b>${d.dist==null?'基準':'—'}</b></div>`;
+    if(!r.full) chips += `<span class="chip warn">満タン以外</span>`;
+    if(r.exclude) chips += `<span class="chip">集計外</span>`;
+    else if(d.outlier) chips += `<span class="chip bad">外れ値？</span>`;
+    h += `<li><button class="item" data-act="edit" data-id="${r.id}">${g}<div class="meta">
+      <div class="d">${slashDate(r.date)} ${chips}</div>
+      <dl><dt>オドメーター</dt><dd>${fmt(r.odo)} km ${d.dist!=null?`<i>(+${fmt(d.dist)})</i>`:''}</dd>
+      <dt>給油量</dt><dd>${fmt(r.liters,2)} L</dd>
+      <dt>金額</dt><dd>¥${fmt(r.price)} <i>(¥${fmt(d.unit)}/L)</i></dd></dl>
+      ${r.station||r.memo ? `<div class="hint">${esc([r.station,r.memo].filter(Boolean).join('・'))}</div>`:''}
+    </div></button></li>`;
+  });
+  return h + `</ol></div>`;
+}
+
+function renderTrend(){
+  const v = veh(); if(!v) return `<div class="empty">設定から車両を追加してください。</div>`;
+  const per = [['3m','3か月'],['1y','1年'],['all','全期間']].map(([k,n])=>`<button class="pill" data-act="period" data-k="${k}" aria-pressed="${ui.period===k}">${n}</button>`).join('');
+  const ser = SERIES.map(s=>`<button class="pill" style="--sc:var(${s.c})" data-act="series" data-k="${s.k}" aria-pressed="${ui.series.includes(s.k)}"><span class="dot"></span>${s.n}</button>`).join('');
+  const n = compute(v.id).length;
+  return `<div class="stack">
+    <div class="seg">${per}</div>
+    <div class="card"><div class="chartbox"><canvas id="cv" aria-label="推移グラフ" role="img"></canvas></div>
+      ${n<2?'<p class="hint">記録が2件以上になると推移が表示されます。</p>':''}</div>
+    <div class="seg">${ser}</div>
+    <p class="hint">2つまで同時に表示できます。単位が違う系列は右の軸を使います。グラフの点をタップすると値が出ます。</p>
+  </div>`;
+}
+
+function drawTrend(){
+  const cv = $('#cv'); if(!cv || !window.Chart) return;
+  const ds = compute(veh().id);
+  let cumD=0, cumL=0, totL=0;
+  const pts = ds.map(d => {
+    totL += d.r.liters;
+    if(d.counted){ cumD += d.segDist; cumL += d.segLiters; }
+    return {date:d.r.date, avg: cumL>0 ? +(cumD/cumL).toFixed(2) : null, seg: d.econ!=null && !d.r.exclude ? +d.econ.toFixed(2) : null,
+      price: d.unit!=null ? Math.round(d.unit) : null, odo:d.r.odo, liters:+totL.toFixed(2), money:d.r.price};
+  });
+  let from = '';
+  if(ui.period!=='all'){ const t=new Date(); t.setMonth(t.getMonth() - (ui.period==='3m'?3:12)); from = t.toISOString().slice(0,10); }
+  const P = pts.filter(p=>p.date>=from);
+  const sel = SERIES.filter(s=>ui.series.includes(s.k));
+  const leftG = sel[0] ? sel[0].g : 'kmL';
+  const grid = css('--line'), muted = css('--muted');
+  const datasets = sel.map(s => { const col = css(s.c); return {label:s.n, data:P.map(p=>p[s.k]), borderColor:col, backgroundColor:col, pointBackgroundColor:col, pointRadius:P.length>60?1.5:3, borderWidth:2, tension:.25, spanGaps:true, yAxisID: s.g===leftG ? 'yL':'yR', unit:GROUP_UNIT[s.g]}; });
+  const rightG = sel.find(s=>s.g!==leftG);
+  chart = new Chart(cv, {type:'line', data:{labels:P.map(p=>p.date.slice(2).replace(/-/g,'/')), datasets},
+    options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.parsed.y, c.dataset.unit==='km/L'?1:c.dataset.unit==='L'?2:0)} ${c.dataset.unit}`}}},
+      scales:{
+        x:{ticks:{color:muted, maxTicksLimit:6, maxRotation:0}, grid:{color:grid}},
+        yL:{position:'left', title:{display:true, text:GROUP_UNIT[leftG], color:muted}, ticks:{color:muted}, grid:{color:grid}},
+        yR:{position:'right', display:!!rightG, title:{display:!!rightG, text:rightG?GROUP_UNIT[rightG.g]:'', color:muted}, ticks:{color:muted}, grid:{drawOnChartArea:false}}
+      }}});
+}
+
+/* ---------- analysis ---------- */
+function groups(ds){
+  const byKey = {};
+  const add = (k, d) => { const g = byKey[k] || (byKey[k] = {dist:0, liters:0, money:0, sd:0, sl:0}); g.dist += d.dist||0; g.liters += d.r.liters; g.money += d.r.price; if(d.counted){ g.sd += d.segDist; g.sl += d.segLiters; } };
+  const yr = ui.target;
+  ds.forEach(d => {
+    const y = d.r.date.slice(0,4), m = +d.r.date.slice(5,7);
+    if(yr!=='all' && y!==yr) return;
+    if(ui.agg==='year') add(y, d); else add(m, d);
+  });
+  let keys;
+  if(ui.agg==='year') keys = Object.keys(byKey).sort();
+  else keys = Array.from({length:12},(_,i)=>i+1);
+  return keys.map(k => ({label: ui.agg==='year' ? k+'年' : k+'月', g: byKey[k] || {dist:0,liters:0,money:0,sd:0,sl:0}}));
+}
+const METRICS = {econ:['燃費','km/L',1], dist:['走行距離','km',0], liters:['給油量','L',1], money:['給油金額','円',0]};
+function mval(g, k){ if(k==='econ') return g.sl>0 ? g.sd/g.sl : null; if(k==='dist') return g.dist; if(k==='liters') return g.liters; return g.money; }
+
+function renderAnalysis(){
+  const v = veh(); if(!v) return `<div class="empty">設定から車両を追加してください。</div>`;
+  const ds = compute(v.id);
+  const years = [...new Set(ds.map(d=>d.r.date.slice(0,4)))].sort().reverse();
+  if(ui.target!=='all' && !years.includes(ui.target)) ui.target='all';
+  const t = {dist:0, liters:0, money:0, sd:0, sl:0};
+  ds.forEach(d=>{ if(ui.target!=='all' && d.r.date.slice(0,4)!==ui.target) return; t.dist+=d.dist||0; t.liters+=d.r.liters; t.money+=d.r.price; if(d.counted){t.sd+=d.segDist; t.sl+=d.segLiters;} });
+  const met = Object.entries(METRICS).map(([k,m])=>`<button class="pill" data-act="metric" data-k="${k}" aria-pressed="${ui.metric===k}">${m[0]}</button>`).join('');
+  return `<div class="stack">
+    <div class="row2">
+      <div><label class="lbl" for="tgt">対象</label><select id="tgt" class="select" data-change="target"><option value="all">全期間</option>${years.map(y=>`<option value="${y}" ${ui.target===y?'selected':''}>${y}年</option>`).join('')}</select></div>
+      <div><label class="lbl" for="agg">集計</label><select id="agg" class="select" data-change="agg"><option value="month" ${ui.agg==='month'?'selected':''}>月別</option><option value="year" ${ui.agg==='year'?'selected':''}>年別</option></select></div>
+    </div>
+    <div class="card"><div class="chartbox"><canvas id="cv" role="img" aria-label="分析グラフ"></canvas></div>
+      <p class="hint">棒＝${METRICS[ui.metric][0]}（${METRICS[ui.metric][1]}）${ui.metric!=='econ'?'、線＝燃費（km/L）':''}。${ui.target==='all'&&ui.agg==='month'?'全期間の月別は、各年の同じ月を合算しています。':''}</p></div>
+    <div class="seg">${met}</div>
+    <div class="stats">
+      <div class="stat"><div class="lab">平均燃費</div><div class="v">${fmt(t.sl>0?t.sd/t.sl:null,2)}<small>km/L</small></div></div>
+      <div class="stat"><div class="lab">走行距離</div><div class="v">${fmt(t.dist)}<small>km</small></div></div>
+      <div class="stat"><div class="lab">給油量</div><div class="v">${fmt(t.liters,1)}<small>L</small></div></div>
+      <div class="stat"><div class="lab">給油金額</div><div class="v">${fmt(t.money)}<small>円</small></div></div>
+      <div class="stat"><div class="lab">平均単価</div><div class="v">${fmt(t.liters>0?t.money/t.liters:null)}<small>円/L</small></div></div>
+      <div class="stat"><div class="lab">1kmあたり</div><div class="v">${fmt(t.dist>0?t.money/t.dist:null,1)}<small>円</small></div></div>
+    </div>
+  </div>`;
+}
+function drawAnalysis(){
+  const cv = $('#cv'); if(!cv || !window.Chart) return;
+  const G = groups(compute(veh().id));
+  const m = METRICS[ui.metric], grid = css('--line'), muted = css('--muted'), acc = css('--c-odo'), eco = css('--c-avg');
+  const datasets = [{type:'bar', label:m[0], data:G.map(x=>{const v=mval(x.g,ui.metric); return v==null?null:+v.toFixed(m[2]);}), backgroundColor: ui.metric==='econ'?eco:acc, borderRadius:4, yAxisID:'yL', order:2, unit:m[1], dec:m[2]}];
+  if(ui.metric!=='econ') datasets.push({type:'line', label:'燃費', data:G.map(x=>{const v=mval(x.g,'econ'); return v==null?null:+v.toFixed(2);}), borderColor:eco, backgroundColor:eco, pointRadius:4, borderWidth:2, spanGaps:true, yAxisID:'yR', order:1, unit:'km/L', dec:1});
+  chart = new Chart(cv, {data:{labels:G.map(x=>x.label), datasets},
+    options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.parsed.y,c.dataset.dec)} ${c.dataset.unit}`}}},
+      scales:{x:{ticks:{color:muted, maxRotation:0, autoSkip:false, font:{size:11}}, grid:{display:false}},
+        yL:{position:'left', beginAtZero:true, title:{display:true, text:m[1], color:muted}, ticks:{color:muted}, grid:{color:grid}},
+        yR:{position:'right', display:ui.metric!=='econ', beginAtZero:true, title:{display:true, text:'km/L', color:muted}, ticks:{color:muted}, grid:{drawOnChartArea:false}}}}});
+}
+
+/* ---------- input ---------- */
+const FIELDS = [['odo','オドメーター','km'],['liters','給油量','L'],['price','給油金額','円'],['unit','単価','円/L']];
+function newForm(rec){
+  if(rec) return {id:rec.id, date:rec.date, odo:String(rec.odo), liters:String(rec.liters), price:String(rec.price), unit:'', priceSource:'price', full:rec.full, exclude:!!rec.exclude, memo:rec.memo||'', station:rec.station||'', field:'odo', warned:false, msgs:[], lowConf:false, sheet:false, paste:''};
+  return {id:null, date:today(), odo:'', liters:'', price:'', unit:'', priceSource:'price', full:true, exclude:false, memo:'', station:'', field:'odo', warned:false, msgs:[], lowConf:false, sheet:false, paste:''};
+}
+function derived(){
+  const l = parseFloat(F.liters), p = parseFloat(F.price), u = parseFloat(F.unit);
+  if(F.priceSource==='unit') return {price: l>0&&u>0 ? Math.round(u*l) : null, unit: u>0?u:null};
+  return {price: p>0?p:null, unit: l>0&&p>0 ? p/l : null};
+}
+function prevRec(){
+  const v = veh(); return S.records.filter(r=>r.vid===v.id && r.id!==F.id && (r.date<F.date || (r.date===F.date))).sort((a,b)=> a.date<b.date?1 : a.date>b.date?-1 : b.odo-a.odo)[0] || null;
+}
+function renderInput(){
+  const v = veh(); if(!v) return `<div class="empty">設定から車両を追加してください。</div>`;
+  if(!F) F = newForm();
+  const dv = derived(), pr = prevRec();
+  const shown = {odo:F.odo, liters:F.liters, price: F.priceSource==='unit' ? (dv.price!=null?String(dv.price):'') : F.price, unit: F.priceSource==='price' ? (dv.unit!=null?dv.unit.toFixed(0):'') : F.unit};
+  const autoK = F.priceSource==='unit' ? 'price' : 'unit';
+  const cur = FIELDS.find(f=>f[0]===F.field);
+  const curVal = shown[F.field];
+  let sub = '';
+  if(F.field==='odo' && pr){ const o=parseFloat(F.odo); sub = `<span>前回 ${fmt(pr.odo)} km（${slashDate(pr.date)}）</span>` + (o>0 ? `<span class="${o<=pr.odo||o-pr.odo>2000?'w':''}">走行 ${o>pr.odo?'+':''}${fmt(o-pr.odo)} km</span>`:''); }
+  else if(F.field==='liters' && v.tank){ const l=parseFloat(F.liters); sub = `<span>タンク容量 ${fmt(v.tank)} L</span>` + (l>v.tank?`<span class="w">容量を超えています</span>`:''); }
+  else if(F.field===autoK){ sub = `<span>${autoK==='unit'?'金額 ÷ 給油量':'単価 × 給油量'}で自動計算中。入力すると切り替わります</span>`; }
+  const tabs = FIELDS.map(([k,n,u])=>{ const val = shown[k]; const auto = k===autoK && val; return `<button class="ftab${k==='odo'&&F.lowConf?' low':''}" role="tab" aria-selected="${F.field===k}" data-act="field" data-k="${k}">${n}<b class="${auto?'auto':''}">${val?fmt(parseFloat(val), k==='liters'?2:0):'—'}</b></button>`; }).join('');
+  const isAuto = F.field===autoK && curVal;
+  let msgs = '';
+  if(F.msgs.length) msgs = `<div class="msg ${F.warned?'warn':'err'}">${F.warned?'確認してください':'入力が足りません'}<ul>${F.msgs.map(m=>`<li>${esc(m)}</li>`).join('')}</ul></div>`;
+  return `<div class="stack">
+    <div class="inhead">
+      ${F.id?`<button class="iconbtn" data-act="cancelEdit" aria-label="編集をやめる"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`:''}
+      <input type="date" id="fdate" value="${F.date}" data-change="fdate" aria-label="給油日">
+    </div>
+    ${F.id?'<div class="hint">記録を編集中</div>':''}
+    <div class="ftabs" role="tablist">${tabs}</div>
+    <div class="display"><span class="n ${curVal?'':'ph'}${isAuto?' ph':''}">${curVal ? esc(F.field==='unit'&&isAuto?Number(curVal).toFixed(0):curVal) : '0'}</span><span class="u">${cur[2]}</span></div>
+    <div class="subline">${sub}</div>
+    <div class="keys">
+      <button class="key fn" data-act="nav" data-d="-1">‹ 前へ</button><button class="key fn" data-act="key" data-k="C">クリア</button><button class="key fn" data-act="nav" data-d="1">次へ ›</button>
+      ${['7','8','9','4','5','6','1','2','3','.','0','⌫'].map(k=>`<button class="key" data-act="key" data-k="${k}" aria-label="${k==='⌫'?'1文字消す':k}">${k}</button>`).join('')}
+    </div>
+    <div class="opts">
+      <label class="toggle">満タン給油<input type="checkbox" id="ffull" data-change="ffull" ${F.full?'checked':''}></label>
+      ${F.id?`<label class="toggle">集計から除外<input type="checkbox" id="fex" data-change="fex" ${F.exclude?'checked':''}></label>`:`<span></span>`}
+    </div>
+    <input class="text" id="fstation" placeholder="スタンド名（任意）" value="${esc(F.station)}" data-change="fstation">
+    <input class="text" id="fmemo" placeholder="メモ（任意）" value="${esc(F.memo)}" data-change="fmemo">
+    ${msgs}
+    <button class="btn primary big" data-act="saveRec">${F.warned?'このまま保存':'入力完了'}</button>
+    <button class="btn claude" data-act="sheet" aria-expanded="${F.sheet}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>Claudeで読み取る（レシート・メーター）</button>
+    ${F.sheet?renderSheet():''}
+    ${F.id?`<button class="btn danger" data-act="delRec">${ui.armed==='del'?'もう一度押すと削除します':'この記録を削除'}</button>`:''}
+  </div>`;
+}
+function filledPrompt(){
+  const v = veh(); const last = S.records.filter(r=>r.vid===v.id && r.id!==F.id).sort((a,b)=>a.date<b.date?1:-1)[0];
+  return (S.prompt || DEFAULT_PROMPT).replace('{車両名}', v.name).replace('{燃料}', v.fuel).replace('{前回km}', last?fmt(last.odo):'記録なし').replace('{前回日付}', last?last.date:'—');
+}
+function renderSheet(){
+  return `<div class="sheet">
+    <h3>Claudeで読み取って貼り付け</h3>
+    <ol class="steps"><li>「指示文をコピー」を押す</li><li>Claudeアプリでレシート・メーターの写真を添付し、指示文を貼り付けて送る</li><li>返ってきた回答をコピーし、下の欄に貼り付けて「取り込む」</li></ol>
+    <button class="btn" data-act="copyPrompt">指示文をコピー</button>
+    ${ui.fallback?`<textarea class="text" id="fb" readonly>${esc(ui.fallback)}</textarea><p class="hint">自動コピーできませんでした。上の文を長押しして全選択・コピーしてください。</p>`:''}
+    <label class="lbl" for="fpaste">Claudeの回答</label>
+    <textarea class="text" id="fpaste" data-change="fpaste" placeholder='{"date":"2026-10-18","liters":26.51, ...}'>${esc(F.paste)}</textarea>
+    <button class="btn primary" data-act="importJSON">取り込む</button>
+  </div>`;
+}
+function setField(k, val){
+  if(k==='price') F.priceSource='price';
+  if(k==='unit') F.priceSource='unit';
+  F[k]=val; F.warned=false; F.msgs=[];
+}
+function pressKey(k){
+  const f = F.field; let s = F[f];
+  if(f==='unit' && F.priceSource!=='unit') s='';
+  if(f==='price' && F.priceSource!=='price') s='';
+  if(k==='C') s='';
+  else if(k==='⌫') s=s.slice(0,-1);
+  else if(k==='.'){ if(f==='odo'||f==='price'||s.includes('.')) return; s = (s||'0')+'.'; }
+  else {
+    if(s==='0') s='';
+    const dot = s.indexOf('.');
+    if(dot>=0 && s.length-dot-1 >= (f==='liters'?2:1)) return;
+    if(s.replace('.','').length>=7) return;
+    s += k;
+  }
+  if(f==='odo') F.lowConf=false;
+  setField(f, s);
+}
+function saveRec(){
+  const v = veh(); const dv = derived();
+  const odo = parseFloat(F.odo), liters = parseFloat(F.liters), price = dv.price;
+  const err = [];
+  if(!F.date) err.push('給油日を選んでください');
+  if(!(odo>0)) err.push('オドメーターを入力してください');
+  if(!(liters>0)) err.push('給油量を入力してください');
+  if(!(price>0)) err.push('給油金額か単価を入力してください');
+  if(err.length){ F.msgs=err; F.warned=false; render(); return; }
+  if(!F.warned){
+    const w = []; const pr = prevRec();
+    if(pr && odo<=pr.odo) w.push(`オドメーターが前回（${fmt(pr.odo)} km）以下です`);
+    if(pr && odo-pr.odo>2000) w.push(`前回から ${fmt(odo-pr.odo)} km 増えています`);
+    if(v.tank && liters>v.tank) w.push(`給油量がタンク容量（${v.tank} L）を超えています`);
+    if(F.priceSource==='price' && F.unit && Math.abs(parseFloat(F.unit)*liters - price)/price > 0.03) w.push('読み取った単価×給油量と金額が合いません（値引きや読み違いの可能性）');
+    if(F.lowConf) w.push('オドメーターの読み取りに自信がないと返されています');
+    if(w.length){ F.warned=true; F.msgs=w; render(); return; }
+  }
+  const rec = {id:F.id||uid(), vid:v.id, date:F.date, odo:Math.round(odo), liters:Math.round(liters*100)/100, price:Math.round(price), full:F.full, exclude:F.exclude, memo:F.memo.trim(), station:F.station.trim()};
+  const i = S.records.findIndex(r=>r.id===rec.id);
+  if(i>=0) S.records[i]=rec; else S.records.push(rec);
+  save(); const wasEdit = !!F.id; F=null; ui.view='history'; render(); toast(wasEdit?'更新しました':'保存しました');
+}
+function parseResult(t){ const a=t.indexOf('{'), b=t.lastIndexOf('}'); if(a<0||b<=a) return null; try{ return JSON.parse(t.slice(a,b+1)); }catch(e){ return null; } }
+function importJSON(){
+  const o = parseResult(F.paste||'');
+  if(!o){ F.msgs=['読み取れませんでした。Claudeの回答をそのまま貼り付けてください']; F.warned=false; render(); return; }
+  const n = x => (typeof x==='number' && isFinite(x)) ? x : (typeof x==='string' && x.trim()!=='' && isFinite(+x.replace(/,/g,''))) ? +x.replace(/,/g,'') : null;
+  const got = [];
+  if(typeof o.date==='string' && /^\d{4}-\d{2}-\d{2}$/.test(o.date)){ F.date=o.date; got.push('日付'); }
+  const l=n(o.liters), u=n(o.unitPrice), p=n(o.totalPrice), od=n(o.odometer);
+  if(l){ F.liters=String(l); got.push('給油量'); }
+  if(p){ F.price=String(Math.round(p)); F.priceSource='price'; got.push('金額'); if(u) F.unit=String(u); }
+  else if(u){ F.unit=String(u); F.priceSource='unit'; got.push('単価'); }
+  if(od){ F.odo=String(Math.round(od)); got.push('オドメーター'); F.lowConf = o.confidence==='low'; }
+  if(typeof o.station==='string' && o.station.trim()){ F.station=o.station.trim(); }
+  F.warned=false; F.msgs=[]; F.sheet=false; F.paste=''; F.field = od ? 'odo' : 'liters';
+  render(); toast(got.length ? got.join('・')+'を取り込みました' : '取り込める項目がありませんでした');
+}
+
+/* ---------- settings ---------- */
+function renderSettings(){
+  const vl = S.vehicles.map(v=>{
+    if(ui.vedit===v.id) return vehForm(v);
+    const n = S.records.filter(r=>r.vid===v.id).length;
+    return `<div class="vrow"><div><div class="nm">${esc(v.name)}${v.id===S.activeVid?' <span class="chip">表示中</span>':''}</div><div class="sub">${esc(v.fuel)}${v.tank?'・タンク '+v.tank+' L':''}・記録 ${n} 件</div></div><div class="btnrow"><button class="btn" data-act="vshow" data-id="${v.id}">表示</button><button class="btn" data-act="vedit" data-id="${v.id}">編集</button></div></div>`;
+  }).join('');
+  return `<div class="stack">
+  <section class="sec"><h2>車両</h2><div class="vlist">${vl}${ui.vedit==='new'?vehForm(null):`<button class="btn" data-act="vedit" data-id="new">＋ 車両を追加</button>`}</div></section>
+
+  <section class="sec"><h2>バックアップ</h2><div class="card stack">
+    <p class="hint" style="margin:0">記録はこのiPhoneの中だけに保存されます。機種変更やSafariのデータ消去に備えて、月1回は「ファイルに保存」から「ファイル」アプリやiCloud Driveへ保存してください。前回：${S.lastBackup?new Date(S.lastBackup).toLocaleDateString('ja-JP'):'まだありません'}</p>
+    <div class="btnrow"><button class="btn primary" data-act="saveBackupFile">ファイルに保存</button><button class="btn" data-act="copyBackup">バックアップをコピー</button><button class="btn" data-act="copyCSV">CSVをコピー</button></div>
+    ${ui.fallback&&ui.view==='settings'?`<textarea class="text" readonly>${esc(ui.fallback)}</textarea><p class="hint">自動コピーできませんでした。長押しで全選択してコピーし、メモや「ファイル」に保存してください。</p>`:''}
+    <label class="lbl" for="rfile">バックアップから復元</label>
+    <input type="file" id="rfile" accept=".json,application/json,text/plain" data-change="rfile" class="text">
+    <textarea class="text" id="rtext" data-change="rtext" placeholder="またはバックアップの内容を貼り付け">${esc(ui.restoreText)}</textarea>
+    <button class="btn ${ui.armed==='restore'?'armed':''}" data-act="restore">${ui.armed==='restore'?'今のデータを置き換えます。もう一度押すと復元':'復元する'}</button>
+  </div></section>
+
+  <section class="sec"><h2>読み取り用の指示文</h2><div class="card stack">
+    <p class="hint" style="margin:0">{車両名} {燃料} {前回km} {前回日付} はコピー時に自動で置き換わります。</p>
+    <textarea class="text" id="ptext" data-change="ptext" style="min-height:180px">${esc(S.prompt||DEFAULT_PROMPT)}</textarea>
+    <div class="btnrow"><button class="btn" data-act="resetPrompt">初期状態に戻す</button></div>
+  </div></section>
+
+  ${S.sample?`<section class="sec"><h2>例のデータ</h2><div class="card stack"><p class="hint" style="margin:0">いま表示しているルーミーの25件は動作確認用の例です（直近3件のみ実際の画面の値）。消去すると記録が空になり、車両はそのまま残ります。</p><button class="btn ${ui.armed==='sample'?'armed':''}" data-act="clearSample">${ui.armed==='sample'?'もう一度押すと消去します':'例のデータを消去して使い始める'}</button></div></section>`:''}
+  <p class="hint">給油記録帳 v1.0</p>
+  </div>`;
+}
+function vehForm(v){
+  return `<div class="card stack"><div class="form3">
+    <input class="text" id="vn" placeholder="車両名（例：ルーミー）" value="${esc(v?v.name:'')}">
+    <select class="select" id="vf">${FUELS.map(f=>`<option ${v&&v.fuel===f?'selected':''}>${f}</option>`).join('')}</select>
+    <input class="text" id="vt" inputmode="numeric" placeholder="タンク容量 L" value="${v&&v.tank?v.tank:''}">
+  </div><div class="btnrow"><button class="btn primary" data-act="vsave" data-id="${v?v.id:'new'}">保存</button><button class="btn" data-act="vcancel">やめる</button>
+  ${v?`<button class="btn danger ${ui.armed==='vdel'?'armed':''}" data-act="vdel" data-id="${v.id}">${ui.armed==='vdel'?'記録ごと削除します。もう一度押す':'この車両を削除'}</button>`:''}</div></div>`;
+}
+function backupJSON(){ return JSON.stringify({app:'fuel-log', version:1, exportedAt:new Date().toISOString(), vehicles:S.vehicles, records:S.records, settings:{prompt:S.prompt}}, null, 1); }
+function csv(){
+  const names = Object.fromEntries(S.vehicles.map(v=>[v.id,v.name]));
+  const q = s => '"'+String(s).replace(/"/g,'""')+'"';
+  return ['日付,車両,オドメーター,給油量,金額,満タン,スタンド,メモ'].concat(S.records.slice().sort((a,b)=>a.date<b.date?-1:1).map(r=>[r.date,q(names[r.vid]||''),r.odo,r.liters,r.price,r.full?1:0,q(r.station||''),q(r.memo||'')].join(','))).join('\n');
+}
+function copy(text, ok){
+  ui.fallback=null;
+  try{
+    navigator.clipboard.writeText(text).then(()=>{ toast('コピーしました'); if(ok) ok(); }).catch(()=>{ ui.fallback=text; render(); });
+  }catch(e){ ui.fallback=text; render(); }
+}
+function restore(){
+  let o=null; try{ o = JSON.parse(ui.restoreText); }catch(e){}
+  if(!o || !Array.isArray(o.vehicles) || !Array.isArray(o.records) || !o.vehicles.length){ ui.armed=null; render(); toast('バックアップの形式が読み取れません'); return; }
+  if(ui.armed!=='restore'){ ui.armed='restore'; render(); return; }
+  S = {vehicles:o.vehicles, records:o.records, activeVid:o.vehicles[0].id, prompt:(o.settings&&o.settings.prompt)||null, lastBackup:Date.now(), sample:false};
+  save(); ui.armed=null; ui.restoreText=''; F=null; ui.view='history'; render(); toast('復元しました');
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const a = b.dataset.act, id = b.dataset.id;
+  if(a!=='delRec' && a!=='restore' && a!=='clearSample' && a!=='vdel') ui.armed=null;
+  switch(a){
+    case 'go': if(b.dataset.v==='input' && ui.view!=='input'){ F=null; } ui.view=b.dataset.v; ui.fallback=null; render(); window.scrollTo(0,0); break;
+    case 'vprev': case 'vnext': { const i=S.vehicles.findIndex(v=>v.id===S.activeVid), n=S.vehicles.length; S.activeVid=S.vehicles[(i+(a==='vnext'?1:-1)+n)%n].id; save(); if(ui.view==='input') F=null; render(); break; }
+    case 'edit': F = newForm(S.records.find(r=>r.id===id)); ui.view='input'; render(); window.scrollTo(0,0); break;
+    case 'cancelEdit': F=null; ui.view='history'; render(); break;
+    case 'period': ui.period=b.dataset.k; render(); break;
+    case 'series': { const k=b.dataset.k, s=ui.series; if(s.includes(k)){ if(s.length>1) s.splice(s.indexOf(k),1); } else { s.push(k); if(s.length>2) s.shift(); } render(); break; }
+    case 'metric': ui.metric=b.dataset.k; render(); break;
+    case 'field': F.field=b.dataset.k; render(); break;
+    case 'nav': { const i=FIELDS.findIndex(f=>f[0]===F.field); F.field=FIELDS[(i+ +b.dataset.d+FIELDS.length)%FIELDS.length][0]; render(); break; }
+    case 'key': pressKey(b.dataset.k); render(); break;
+    case 'saveRec': saveRec(); break;
+    case 'delRec': if(ui.armed!=='del'){ ui.armed='del'; render(); } else { S.records=S.records.filter(r=>r.id!==F.id); save(); ui.armed=null; F=null; ui.view='history'; render(); toast('削除しました'); } break;
+    case 'sheet': F.sheet=!F.sheet; ui.fallback=null; render(); break;
+    case 'copyPrompt': copy(filledPrompt()); break;
+    case 'importJSON': importJSON(); break;
+    case 'copyBackup': copy(backupJSON(), ()=>{ S.lastBackup=Date.now(); save(); render(); }); break;
+    case 'saveBackupFile': {
+      const name='fuel-log-backup-'+today()+'.json', blob=new Blob([backupJSON()],{type:'application/json'});
+      const done=()=>{ S.lastBackup=Date.now(); save(); render(); toast('バックアップしました'); };
+      let file=null; try{ file=new File([blob],name,{type:'application/json'}); }catch(e){}
+      if(file && navigator.canShare && navigator.canShare({files:[file]})){ navigator.share({files:[file]}).then(done).catch(()=>{}); }
+      else { const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); done(); }
+      break;
+    }
+    case 'copyCSV': copy(csv()); break;
+    case 'restore': restore(); break;
+    case 'resetPrompt': S.prompt=null; save(); render(); toast('初期状態に戻しました'); break;
+    case 'clearSample': if(ui.armed!=='sample'){ ui.armed='sample'; render(); } else { S.records=[]; S.sample=false; S.lastBackup=null; save(); ui.armed=null; render(); toast('例のデータを消去しました'); } break;
+    case 'vshow': S.activeVid=id; save(); ui.view='history'; render(); break;
+    case 'vedit': ui.vedit=id; render(); break;
+    case 'vcancel': ui.vedit=null; render(); break;
+    case 'vsave': {
+      const name=$('#vn').value.trim(), fuel=$('#vf').value, tank=parseFloat($('#vt').value)||null;
+      if(!name){ toast('車両名を入力してください'); return; }
+      if(id==='new'){ const v={id:uid(), name, fuel, tank}; S.vehicles.push(v); S.activeVid=v.id; }
+      else Object.assign(S.vehicles.find(v=>v.id===id), {name, fuel, tank});
+      save(); ui.vedit=null; render(); toast('保存しました'); break;
+    }
+    case 'vdel':
+      if(S.vehicles.length<2){ toast('車両は1台以上必要です'); return; }
+      if(ui.armed!=='vdel'){ ui.armed='vdel'; render(); }
+      else { S.vehicles=S.vehicles.filter(v=>v.id!==id); S.records=S.records.filter(r=>r.vid!==id); if(S.activeVid===id) S.activeVid=S.vehicles[0].id; save(); ui.armed=null; ui.vedit=null; render(); toast('削除しました'); }
+      break;
+  }
+});
+document.addEventListener('input', e => {
+  const k = e.target.dataset.change; if(!k) return; const t=e.target;
+  if(k==='fstation') F.station=t.value;
+  else if(k==='fmemo') F.memo=t.value;
+  else if(k==='fpaste') F.paste=t.value;
+  else if(k==='rtext'){ ui.restoreText=t.value; ui.armed=null; }
+  else if(k==='ptext'){ S.prompt = t.value.trim()===DEFAULT_PROMPT.trim() ? null : t.value; save(); }
+});
+document.addEventListener('change', e => {
+  const k = e.target.dataset.change; if(!k) return; const t=e.target;
+  if(k==='fdate'){ F.date=t.value; F.warned=false; F.msgs=[]; render(); }
+  else if(k==='ffull'){ F.full=t.checked; }
+  else if(k==='fex'){ F.exclude=t.checked; }
+  else if(k==='target'){ ui.target=t.value; render(); }
+  else if(k==='agg'){ ui.agg=t.value; render(); }
+  else if(k==='rfile' && t.files[0]){ const r=new FileReader(); r.onload=()=>{ ui.restoreText=String(r.result); ui.armed=null; render(); }; r.readAsText(t.files[0]); }
+});
+document.addEventListener('keydown', e => {
+  if(ui.view!=='input' || !F) return;
+  const tag = (e.target.tagName||'').toLowerCase(); if(tag==='input'||tag==='textarea'||tag==='select') return;
+  if(/^[0-9.]$/.test(e.key)){ pressKey(e.key); render(); }
+  else if(e.key==='Backspace'){ pressKey('⌫'); render(); }
+  else if(e.key==='Enter'){ saveRec(); }
+});
+const rerenderChart = () => { if(ui.view==='trend'||ui.view==='analysis') render(); };
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rerenderChart); }catch(e){}
+new MutationObserver(rerenderChart).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+
+load().then(()=>{ render();
+  try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+});
+})();
+</script>
+</body>
+</html>
